@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Semana13Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AnimateColorAsStateExample(
+                    AnimateDpAsStateExample(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -53,21 +54,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AnimateColorAsStateExample(modifier: Modifier = Modifier) {
-    var isBlue by remember { mutableStateOf(true) }
+fun AnimateDpAsStateExample(modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) }
 
-    // Animación con tween para el color principal
-    val animatedColor by animateColorAsState(
-        targetValue = if (isBlue) Color(0xFF2196F3) else Color(0xFF4CAF50), // Azul a Verde
-        animationSpec = tween(durationMillis = 1000), // Animación suave de 1 segundo
-        label = "Color Animation"
+    // Animación de tamaño con tween
+    val animatedSize by animateDpAsState(
+        targetValue = if (isExpanded) 200.dp else 100.dp,
+        animationSpec = tween(durationMillis = 800),
+        label = "Size Animation"
     )
 
-    // Animación con spring para el botón
-    val buttonColor by animateColorAsState(
-        targetValue = if (isBlue) Color(0xFF1976D2) else Color(0xFF388E3C),
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 100f), // Spring bouncy
-        label = "Button Color Animation"
+    // Animación de offset con spring
+    val animatedOffset by animateDpAsState(
+        targetValue = if (isExpanded) 100.dp else 0.dp,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 120f),
+        label = "Offset Animation"
     )
 
     Column(
@@ -75,33 +76,34 @@ fun AnimateColorAsStateExample(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Cuadro grande con animación de color
+        // Cuadro animado: offset primero, luego size (orden importa)
         Box(
             modifier = Modifier
-                .size(200.dp)
+                .offset(x = animatedOffset, y = animatedOffset) // Primero offset
+                .size(animatedSize) // Luego size
                 .clip(RoundedCornerShape(16.dp))
-                .background(animatedColor),
+                .background(Color(0xFF6200EE)),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (isBlue) "Azul" else "Verde",
+                text = if (isExpanded) "Grande" else "Pequeño",
                 color = Color.White,
-                fontSize = 24.sp,
+                fontSize = if (isExpanded) 20.sp else 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        // Botón estilizado con animación
+        // Botón estilizado
         Button(
-            onClick = { isBlue = !isBlue },
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+            onClick = { isExpanded = !isExpanded },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3700B3)),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.size(width = 180.dp, height = 60.dp)
+            modifier = Modifier.size(width = 200.dp, height = 60.dp)
         ) {
             Text(
-                text = "Cambiar Color",
+                text = "Mover y Cambiar Tamaño",
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
@@ -111,17 +113,17 @@ fun AnimateColorAsStateExample(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Animación: ${if (isBlue) "Tween (Suave)" else "Spring (Elástico)"}",
+            text = "Orden: offset → size (afecta el resultado)",
             color = Color.Gray,
-            fontSize = 14.sp
+            fontSize = 12.sp
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun AnimateColorAsStateExamplePreview() {
+fun AnimateDpAsStateExamplePreview() {
     Semana13Theme {
-        AnimateColorAsStateExample()
+        AnimateDpAsStateExample()
     }
 }
