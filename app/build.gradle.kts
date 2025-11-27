@@ -1,4 +1,7 @@
+import org.gradle.api.JavaVersion
+
 plugins {
+    // 1. SOLO APLICAR (sin apply false)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
